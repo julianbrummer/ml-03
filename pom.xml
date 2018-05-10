@@ -8,7 +8,7 @@
 	<packaging>jar</packaging>
 	<version>1.0.0</version>
 	<name>MachineLearning Exercise 03</name>
-		<dependencies>
+	<dependencies>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -16,11 +16,13 @@
 			<scope>provided</scope>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable -->
+		<!-- 
 		<dependency>
 		    <groupId>nz.ac.waikato.cms.weka</groupId>
 		    <artifactId>weka-stable</artifactId>
 		    <version>3.8.0</version>
-		</dependency>
+		</dependency> 
+		-->
 	</dependencies>
 	<profiles>
 		<profile>
@@ -91,7 +93,7 @@
 		          <manifest>
 		            <addClasspath>true</addClasspath>
 		            <classpathPrefix>lib/</classpathPrefix>
-		            <mainClass>uni.ml.exercise.Exercise02Task01</mainClass>
+		            <mainClass>uni.ml.exercise.Exercise03Task02</mainClass>
 		          </manifest>
 		        </archive>
 		      </configuration>

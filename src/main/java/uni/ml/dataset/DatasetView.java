@@ -1,10 +1,17 @@
 package uni.ml.dataset;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
+
+import uni.ml.util.Interval;
+import uni.ml.util.Interval.Type;
+
 
 /**
  * A view on a subset of a dataset. 
@@ -17,6 +24,10 @@ import java.util.NoSuchElementException;
  */
 public abstract class DatasetView {
 	
+	/**
+	 * Enables iterating over all instances, attributes in a for loop. 
+	 * @author Julian Brummer
+	 */
 	private interface ListIteratorBase<T> extends ListIterator<T>, Iterable<T> {
 
 		int index = 0;
@@ -58,6 +69,10 @@ public abstract class DatasetView {
 		
 	}
 	
+	/**
+	 * Enables iterating over all attributes in a for loop. 
+	 * @author Julian Brummer
+	 */
 	private class AttributeIterator implements ListIteratorBase<EnumAttribute<?>> {
 
 		int index = 0;
@@ -81,6 +96,10 @@ public abstract class DatasetView {
 		
 	}
 	
+	/**
+	 * Enables iterating over all instances in a for loop. 
+	 * @author Julian Brummer
+	 */
 	private class InstanceIterator implements ListIteratorBase<Instance> {
 
 		int index = 0;
@@ -104,11 +123,20 @@ public abstract class DatasetView {
 		
 	}
 	
+// access methods for attributes and instances	
 	
 	public abstract int numAttributes();
 	public abstract int numInstances();
 	public abstract EnumAttribute<?> attributeAt(int index);
 	public abstract Instance instanceAt(int index);
+	
+	public boolean hasAttributes() {
+		return numAttributes() > 0;
+	}
+	
+	public boolean hasInstances() {
+		return numInstances() > 0;
+	}
 	
 	public Iterable<EnumAttribute<?>> attributes() {
 		return new AttributeIterator();
@@ -118,13 +146,85 @@ public abstract class DatasetView {
 		return new InstanceIterator();
 	}
 	
-	public boolean hasAttributes() {
-		return numAttributes() > 0;
+//
+    
+	
+	/**
+	 * A convenience method to access all attributes except for those that are explicitly excluded.
+	 * @param exclude The attributes to exclude from the set.
+	 * @return the set of attributes (columns) of the dataset without the excluded attributes.
+	 */
+	public Set<EnumAttribute<?>> attributeSet(EnumAttribute<?>... exclude) {
+		Set<EnumAttribute<?>> attrSet = new HashSet<>();
+		attributes().forEach(attrSet::add);
+		attrSet.removeAll(Arrays.asList(exclude));
+		return attrSet;
 	}
 	
-	public boolean hasInstances() {
-		return numInstances() > 0;
+	/**
+	 * A convenience method to access the last attribute, e.g for classification.
+	 * @return the last attribute or null if the dataset view has no attributes.
+	 */
+	public EnumAttribute<?> lastAttribute() {
+		return hasAttributes()? attributeAt(numAttributes()-1) : null;
 	}
+
+	/**
+	 * Splits the dataset(-view) randomly into a training- and a test set.
+	 * @param ratio The ratio of the training set. Must be between 0 and 1.
+	 * @return The training and test set.
+	 */
+	public DatasetSplit randomSplit(float ratio) {
+		Sampling.Split split = Sampling.randomSplit(ratio, numInstances());
+		return new DatasetSplit(new DatasetIndexedView(this, split.first()), new DatasetIndexedView(this, split.second()));
+	}
+	
+	/**
+	 * Normalizes the weights and samples instances from the weighted dataset(-view) with replacement.
+	 */
+	public DatasetView weightedBootstrapSampling() {
+		normalizeWeights();
+		List<Interval> distribution = new ArrayList<>();
+		float margin = 0.0f;
+		for (Instance instance : instances()) {
+			distribution.add(new Interval(margin, margin+instance.weight(), Type.R_OPEN));
+			margin += instance.weight();
+		}
+		return new DatasetIndexedView(this, Sampling.weightedBootstrap(distribution));
+	}
+	
+	
+	/**
+	 * Assigns equal weights (1/numInstances()) to all instances of this dataset(-view).
+	 */
+	public void assignEqualWeights() {
+		float w = 1.0f/numInstances();
+		for (Instance instance : instances()) {
+			instance.weight(w);
+		}		
+	}
+	
+	/**
+	 * Normalizes the weights, such that the sum is one. 
+	 */
+	public void normalizeWeights() {
+		float sumWeights = sumWeights();
+		for (Instance instance : instances()) {
+			instance.multiplyWeight(1/sumWeights);
+		}	
+	}
+	
+	/**
+	 * @return The sum of all instance weights.
+	 */
+	public float sumWeights() {
+		float sumWeights = 0.0f;
+		for (Instance instance : instances()) {
+			sumWeights += instance.weight();
+		}	
+		return sumWeights;
+	}
+	
 	
 	@Override
 	public String toString() {

@@ -1,39 +1,27 @@
 package uni.ml.tree;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import uni.ml.dataset.EnumAttribute;
 import uni.ml.dataset.Instance;
 import uni.ml.dataset.Value;
 
 /**
- * Can be used to classify an instance of a dataset with a decision tree. 
+ * Provides an interface for decision model classification. 
  * @author Julian Brummer
  *
  */
-@RequiredArgsConstructor
-public class Classifier implements NodeVisitor {
+public interface Classifier {
 
-	@NonNull
-	private Node root;
-	private Instance testInstance;
-	private Value<?> classValue;
+	/**
+	 * Classifies an instance with this classifier.
+	 * @param classAttribute The target/classification attribute.
+	 * @return The value predicted by this classifier.
+	 */
+	public Value<?> classify(Instance instance, EnumAttribute<?> classAttribute);
 	
-	@Override
-	public void visit(InnerNode node) {
-		Value<?> decisionValue = testInstance.value(node.decisionAttribute());
-		node.child(decisionValue).accept(this);
+	/**
+	 * Tests whether the value predicted by this classifier is equal to the value of the test instance.
+	 */
+	default boolean test(Instance instance, EnumAttribute<?> classAttribute) {
+		return instance.value(classAttribute).equals(classify(instance, classAttribute));
 	}
-
-	@Override
-	public void visit(Leaf node) {
-		classValue = node.value();
-	}
-	
-	public Value<?> classify(Instance instance) {
-		testInstance = instance;
-		root.accept(this);
-		return classValue;
-	}
-
-	
 }

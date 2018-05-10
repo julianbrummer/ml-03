@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * An instance represents a list of {@link Attribute}, {@link Value} pairs.
@@ -11,9 +14,12 @@ import lombok.AllArgsConstructor;
  * @author Julian Brummer
  *
  */
+@Accessors(fluent=true)
 public class Instance {	
 
 	private Map<Attribute<?>, Value<?>> values = new HashMap<>();
+	@Getter @Setter
+	private float weight = 1.0f;
 	
 	/**
 	 * Creates an instance with a initial list of entries.
@@ -62,9 +68,18 @@ public class Instance {
 		values.put(entry.attribute, entry.value);
 	}
 	
+	/**
+	 * Multiplies the instance weight with the specified factor.
+	 * @return The new weight.
+	 */
+	public float multiplyWeight(float factor) {
+		return weight *= factor;
+	}
+	
 	
 	public String toString(Iterable<Attribute<?>> attributes) {
 		StringBuilder b = new StringBuilder();
+		//b.append("weight=").append(weight).append("  ");
 		for (Attribute<?> attribute : attributes) {
 			if (hasAttribute(attribute)) {
 				b.append(value(attribute)).append(",");
@@ -107,6 +122,7 @@ public class Instance {
 	public static <T extends Comparable<T>> Entry<T> entry(Attribute<T> attribute, T v) {
 		return new Entry<T>(attribute, new Value<T>(v));
 	}
+	
 	/**
 	 * Convenience method to create an instance.
 	 */

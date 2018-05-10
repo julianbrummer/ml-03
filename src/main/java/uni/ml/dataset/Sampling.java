@@ -1,4 +1,4 @@
-package uni.ml.learning;
+package uni.ml.dataset;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,12 +8,13 @@ import java.util.stream.IntStream;
 
 import lombok.AllArgsConstructor;
 import lombok.ToString;
+import uni.ml.util.Interval;
 
 /**
- * Convenient class to select instance indices from a dataset.
+ * Convenient class to sample instance indices.
  * @author Julian Brummer
  */
-public class Selection {
+public class Sampling {
 	
 	@AllArgsConstructor
 	@ToString(includeFieldNames=true)
@@ -44,5 +45,20 @@ public class Selection {
 		List<Integer> indexList = Arrays.stream(indices).boxed().collect(Collectors.toList());
 		Collections.shuffle(indexList);
 		return new Split(indexList.subList(0, n), indexList.subList(n, numIndices));
+	}
+	
+	
+	public static int[] weightedBootstrap(List<Interval> distribution) {
+		int[] indices = new int[distribution.size()];
+		for (int i = 0; i < indices.length; i++) {
+			float draw = (float) Math.random();
+			for (int j = 0; j < distribution.size(); j++) {
+				if (distribution.get(j).containsValue(draw)) {
+					indices[i] = j;
+					break;
+				}
+			}	
+		}
+		return indices;
 	}
 }

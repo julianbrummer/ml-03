@@ -6,9 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -111,27 +109,7 @@ public class Dataset extends DatasetView {
 	 */
 	public void addAttributes(EnumAttribute<?>... attributes) {
 		this.attributes.addAll(Arrays.asList(attributes));
-	}
-    
-	
-	/**
-	 * A convenience method to access all attributes except for those that are explicitly excluded.
-	 * @param exclude The attributes to exclude from the set.
-	 * @return the set of attributes (columns) of the dataset without the excluded attributes.
-	 */
-	public Set<EnumAttribute<?>> attributeSet(EnumAttribute<?>... exclude) {
-		Set<EnumAttribute<?>> attrSet = new HashSet<>(attributes);
-		attrSet.removeAll(Arrays.asList(exclude));
-		return attrSet;
-	}
-	
-	/**
-	 * A convenience method to access the last attribute, e.g for classification.
-	 * @return the last attribute.
-	 */
-	public EnumAttribute<?> lastAttribute() {
-		return attributeAt(numAttributes()-1);
-	}
+	}	
 	
 	@Override
 	public int numAttributes() {

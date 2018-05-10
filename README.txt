@@ -1,6 +1,6 @@
-To run just use the prebuild jar. The second parameter is the relative path to the arff file.
+To run just use the prebuild jar. 
 e.g.
-java -jar ml-02-1.0.0.jar ./car.arff
+java -jar ml-03-1.0.0.jar [path_to_arff_file] [numBoostingIterations] [maxDepth]
 
 To compile/deploy the application yourself you need to have maven installed.
 In the directory, containing pom.xml call:
